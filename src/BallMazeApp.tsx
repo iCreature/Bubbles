@@ -11,7 +11,7 @@ const { width, height } = Dimensions.get('window');
 
 const BallMazeApp: React.FC = () => {
   const [isLarge, setIsLarge] = useState(false);
-  const size = useSharedValue(isLarge ? width * 0.3 : width * 0.1);
+  const size = useSharedValue(isLarge ? width * 0.4 : width * 0.1);
   const positionX = useSharedValue(width / 2 - size.value / 2);
   const positionY = useSharedValue(height / 2 - size.value / 2);
 

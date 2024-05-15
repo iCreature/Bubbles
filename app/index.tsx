@@ -1,65 +1,118 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Button, Dimensions } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View ,Dimensions} from 'react-native';
 import { Gyroscope } from 'expo-sensors';
+import { Subscription } from 'expo-sensors/build/Pedometer';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
 
-const { width, height } = Dimensions.get('window');
+export default function App() {
+  const [{ x, y, z }, setData] = useState({
+    x: 0,
+    y: 0,
+    z: 0,
+  });
 
-const BallMazeApp: React.FC = () => {
   const [isLarge, setIsLarge] = useState(false);
-  const size = useSharedValue(isLarge ? width * 0.3 : width * 0.1);
-  const positionX = useSharedValue(width / 2 - size.value / 2);
-  const positionY = useSharedValue(height / 2 - size.value / 2);
+  const [subscription, setSubscription] = useState<Subscription | null>(null); // Specify type explicitly
+  const [ballPosition, setBallPosition] = useState({x: 0,y: 0,z: 0});
+  const {width, height} = Dimensions.get('window');
+  const size = useSharedValue(isLarge ? width * 0.4 : width * 0.1);
 
-  useEffect(() => {
-    Gyroscope.addListener((gyroscopeData) => {
-      positionX.value += gyroscopeData.x * 2;
-      positionY.value += gyroscopeData.y * 2;
 
-      // Ensure ball stays within screen bounds
-      positionX.value = Math.max(0, Math.min(width - size.value, positionX.value));
-      positionY.value = Math.max(0, Math.min(height - size.value, positionY.value));
+  const _subscribe = () => {
+    const newSubscription = Gyroscope.addListener(gyroscopeData => {
+      setData(gyroscopeData);
+      setBallPosition(prevPositioin => ({
+        x: prevPositioin.x - gyroscopeData.y * 2,
+        y: prevPositioin.y + gyroscopeData.x * 2,
+        z: 0,
+      }));
     });
+    setSubscription(newSubscription);
+  };
 
-    return () => {
-      Gyroscope.removeAllListeners();
-    };
-  }, []);
+  const _unsubscribe = () => {
+    subscription && subscription.remove();
+    setSubscription(null);
+  };
 
   const ballStyle = useAnimatedStyle(() => ({
     width: size.value,
     height: size.value,
     borderRadius: size.value / 2,
-    backgroundColor: 'blue',
-    transform: [{ translateX: withSpring(positionX.value) }, { translateY: withSpring(positionY.value) }],
+    top: height / 2 - 110,
+    left: width /2 - 30,
+    transform: [{ translateX: withSpring(ballPosition.x) }, { translateY: withSpring(ballPosition.y) }],
   }));
 
   const toggleSize = () => {
     setIsLarge((prev) => !prev);
   };
 
+  useEffect(() => {
+    _subscribe();
+    return () => _unsubscribe();
+  }, []); // Make sure to include subscription in dependency array to unsubscribe properly
+
   return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.ball, ballStyle]} />
-      <Button title={isLarge ? 'Switch to Small' : 'Switch to Large'} onPress={toggleSize} />
-    </View>
+ 
+    <SafeAreaView style={styles.container}>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity  onPress={toggleSize} style={[styles.button, styles.middleButton]}>
+          <Text>{isLarge ? 'Switch to Small' : 'Switch to Large'}</Text>
+        </TouchableOpacity>
+      </View>
+      <Animated.View style={[styles.bubble, ballStyle]} />
+    </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  text: {
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
+    top:0
   },
-  ball: {
+  bubble: {
+    width: 60,
+    height: 60,
+    borderRadius:30,
     position: 'absolute',
+    backgroundColor: 'rgba(205, 10, 85, 1)',
+    shadowColor: 'rgba(255, 255, 255, 0.6)',
+    shadowOffset: {
+      width: 1,
+      height: 1
+    },
+    shadowOpacity: 1,
+    shadowRadius: 30
+  },
+  button: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#eee',
+    bottom: 0,
+    padding: 10,
+  },
+  middleButton: {
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: '#ccc',
+    width:45
   },
 });
-
-export default BallMazeApp;
