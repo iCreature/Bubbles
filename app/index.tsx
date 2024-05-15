@@ -19,14 +19,14 @@ export default function App() {
   const [subscription, setSubscription] = useState<Subscription | null>(null); // Specify type explicitly
   const [ballPosition, setBallPosition] = useState({x: 0,y: 0,z: 0});
   const {width, height} = Dimensions.get('window');
-  const size = useSharedValue(isLarge ? width * 0.4 : width * 0.1);
+  const size = useSharedValue(isLarge ? width * 0.3 : width * 0.1);
 
   const _subscribe = () => {
     const newSubscription = Gyroscope.addListener(gyroscopeData => {
       setData(gyroscopeData);
       setBallPosition(prevPositioin => ({
-        x: prevPositioin.x - gyroscopeData.y * 2,
-        y: prevPositioin.y + gyroscopeData.x * 2,
+        x: prevPositioin.x + gyroscopeData.x * 2,
+        y: prevPositioin.y + gyroscopeData.y * 2,
         z: 0,
       }));
     });
@@ -49,7 +49,7 @@ export default function App() {
 
   const toggleSize = () => {
     setIsLarge((prev) => !prev);
-    size.value = isLarge ? width * 0.1 : width * 0.4;
+    size.value = isLarge ? width * 0.1 : width * 0.3;
   };  
 
   useEffect(() => {
