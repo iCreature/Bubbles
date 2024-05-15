@@ -21,7 +21,6 @@ export default function App() {
   const {width, height} = Dimensions.get('window');
   const size = useSharedValue(isLarge ? width * 0.4 : width * 0.1);
 
-
   const _subscribe = () => {
     const newSubscription = Gyroscope.addListener(gyroscopeData => {
       setData(gyroscopeData);
@@ -59,7 +58,6 @@ export default function App() {
   }, []); // Make sure to include subscription in dependency array to unsubscribe properly
 
   return (
- 
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
       <Button title={isLarge ? 'Switch to Small' : 'Switch to Large'} onPress={toggleSize}  />
