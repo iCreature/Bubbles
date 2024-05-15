@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View ,Dimensions} from 'react-native';
+import { StyleSheet, Button, View ,Dimensions} from 'react-native';
 import { Gyroscope } from 'expo-sensors';
 import { Subscription } from 'expo-sensors/build/Pedometer';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -51,7 +50,8 @@ export default function App() {
 
   const toggleSize = () => {
     setIsLarge((prev) => !prev);
-  };
+    size.value = isLarge ? width * 0.1 : width * 0.4;
+  };  
 
   useEffect(() => {
     _subscribe();
@@ -60,14 +60,12 @@ export default function App() {
 
   return (
  
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity  onPress={toggleSize} style={[styles.button, styles.middleButton]}>
-          <Text>{isLarge ? 'Switch to Small' : 'Switch to Large'}</Text>
-        </TouchableOpacity>
+      <Button title={isLarge ? 'Switch to Small' : 'Switch to Large'} onPress={toggleSize}  />
       </View>
       <Animated.View style={[styles.bubble, ballStyle]} />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -84,15 +82,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
-    top:0
+
   },
   bubble: {
-    width: 60,
-    height: 60,
-    borderRadius:30,
     position: 'absolute',
-    backgroundColor: 'rgba(205, 10, 85, 1)',
+    backgroundColor: 'rgba(255, 165, 0, 1)',
     shadowColor: 'rgba(255, 255, 255, 0.6)',
     shadowOffset: {
       width: 1,
@@ -108,11 +102,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#eee',
     bottom: 0,
     padding: 10,
-  },
-  middleButton: {
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderColor: '#ccc',
-    width:45
+    width:25,
+    color: 'white',
+    borderRadius: 25
   },
 });
