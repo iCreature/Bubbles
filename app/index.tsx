@@ -24,14 +24,24 @@ export default function App() {
   const _subscribe = () => {
     const newSubscription = Gyroscope.addListener(gyroscopeData => {
       setData(gyroscopeData);
-      setBallPosition(prevPositioin => ({
-        x: prevPositioin.x + gyroscopeData.x * 2,
-        y: prevPositioin.y + gyroscopeData.y * 2,
-        z: 0,
-      }));
+      setBallPosition(prevPosition => {
+        const newX = prevPosition.x - gyroscopeData.y * 2;
+        const newY = prevPosition.y + gyroscopeData.x * 2;
+  
+        const maxX = width - size.value;
+        const maxY = height - size.value;
+        const limitedX = Math.max(0, Math.min(newX, maxX));
+        const limitedY = Math.max(0, Math.min(newY, maxY));
+  
+        return {
+          x: limitedX,
+          y: limitedY,
+          z: 0,
+        };
+      });
     });
     setSubscription(newSubscription);
-  };
+  };  
 
   const _unsubscribe = () => {
     subscription && subscription.remove();
